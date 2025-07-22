@@ -1551,84 +1551,130 @@
             
             return assessment;
         }
-            async function createHRDocument(assessment) {
+           async function createHRDocument(assessment, logoBase64, qrCodeBase64, signatureBase64) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-  let content = `SIOX LOGISTICS LLC - NEW JOINEE STANDARD ASSESSMENT
-HR EVALUATION REPORT
-=====================================
+  const date = new Date(assessment.timestamp);
+  const formattedDate = date.toLocaleDateString();
+  const formattedTime = date.toLocaleTimeString();
 
-CANDIDATE INFORMATION:
-Name: ${assessment.candidateName}
-Date: ${new Date(assessment.timestamp).toLocaleDateString()}
-Time: ${new Date(assessment.timestamp).toLocaleTimeString()}
-Duration: ${assessment.timeSpent} minutes
+  const leftMargin = 15;
+  const wrapWidth = 180;
+  let y = 10;
+  const lineHeight = 6;
+  const pageHeight = 290;
 
-DETAILED ASSESSMENT SCORES:
-=====================================
+  // === Utility functions ===
+  const addSectionTitle = (title) => {
+    if (y > pageHeight) { doc.addPage(); y = 10; }
+    doc.setTextColor(0, 0, 128); // dark blue
+    doc.setFont(undefined, 'bold');
+    doc.text(title, leftMargin, y);
+    doc.setTextColor(0, 0, 0); // reset to black
+    y += lineHeight;
+    doc.setFont(undefined, 'normal');
+  };
 
-READING COMPREHENSION SECTION:
+  const addWrappedText = (text) => {
+    const lines = doc.splitTextToSize(text, wrapWidth);
+    for (let line of lines) {
+      if (y > pageHeight) { doc.addPage(); y = 10; }
+      doc.text(line, leftMargin, y);
+      y += lineHeight;
+    }
+  };
 
-Score: ${assessment.scores.readingScore.toFixed(1)}% (${assessment.scores.correctAnswers}/7 correct)
-
-WRITING SECTION:
-Score: ${assessment.scores.writingScore.toFixed(1)}%
-Word Count: ${assessment.scores.essayWordCount} words (Requirement: 400-500 words)
-
-STRUCTURE ANALYSIS:
-- Introduction Present: ${assessment.essayAnalysis.hasIntroduction ? '✓ YES' : '✗ NO'}
-- Conclusion Present: ${assessment.essayAnalysis.hasConclusion ? '✓ YES' : '✗ NO'}
-- Paragraph Structure: ${assessment.essayAnalysis.paragraphCount >= 4 ? '✓ GOOD' : assessment.essayAnalysis.paragraphCount >= 3 ? '⚠ ADEQUATE' : '✗ POOR'}
-
-COMPLETE ESSAY SUBMISSION:
------------------------------------
-${assessment.academicWriting.essay}
-
-=====================================
-TYPING SPEED TEST SECTION:
-Score: ${assessment.scores.typingScore.toFixed(1)}%
-Speed: ${assessment.typingTest.wpm} WPM
-Accuracy: ${assessment.typingTest.accuracy}%
-Time Elapsed: ${assessment.typingTest.timeElapsed}
-Progress: ${assessment.typingTest.progress}%
-Status: ${assessment.scores.typingPass ? 'PASS' : 'FAIL'}
-
-=====================================
-OVERALL ASSESSMENT SUMMARY:
-Reading: ${assessment.scores.readingScore.toFixed(1)}% (40%)
-Writing: ${assessment.scores.writingScore.toFixed(1)}% (40%)
-Typing: ${assessment.scores.typingScore.toFixed(1)}% (20%)
-
-FINAL SCORE: ${assessment.scores.overallScore.toFixed(1)}%
-QUALIFICATION: ${assessment.scores.overallStatus}
-PASS THRESHOLD: 75%
-
-HR RECOMMENDATION: ${assessment.scores.overallStatus === 'QUALIFIED' ? 'PROCEED TO NEXT INTERVIEW STAGE' : 'DOES NOT MEET MINIMUM REQUIREMENTS'}
-
-Generated: ${new Date().toLocaleString()}
-System: Siox Logistics HR Portal
-`;
-
-  // Write to PDF
-const lines = doc.splitTextToSize(content, 180); // wrap lines to fit A4
-doc.setFontSize(10);
-
-let y = 10;
-for (let i = 0; i < lines.length; i++) {
-  if (y > 280) { // if near bottom of page
-    doc.addPage();
-    y = 10;
+  // === Add Logo ===
+  if (logoBase64) {
+    doc.addImage(logoBase64, 'PNG', 160, 8, 35, 15); // top-right corner
   }
-  doc.text(lines[i], 10, y);
-  y += 6; // line height
-}
 
-  // Save the file
+  // === Document Title ===
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(34, 34, 34);
+  doc.text("SIOX LOGISTICS LLC - NEW JOINEE STANDARD ASSESSMENT", leftMargin, y);
+  y += lineHeight;
+  doc.text("HR EVALUATION REPORT", leftMargin, y);
+  y += lineHeight * 1.5;
+
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont(undefined, 'normal');
+
+  // === Sections ===
+  addSectionTitle("CANDIDATE INFORMATION:");
+  addWrappedText(`Name: ${assessment.candidateName}`);
+  addWrappedText(`Date: ${formattedDate}`);
+  addWrappedText(`Time: ${formattedTime}`);
+  addWrappedText(`Duration: ${assessment.timeSpent} minutes`);
+
+  addSectionTitle("READING COMPREHENSION SECTION:");
+  addWrappedText(`Score: ${assessment.scores.readingScore.toFixed(1)}% (${assessment.scores.correctAnswers}/7 correct)`);
+
+  addSectionTitle("WRITING SECTION:");
+  addWrappedText(`Score: ${assessment.scores.writingScore.toFixed(1)}%`);
+  addWrappedText(`Word Count: ${assessment.scores.essayWordCount} words (Requirement: 400–500 words)`);
+
+  addWrappedText("STRUCTURE ANALYSIS:");
+  addWrappedText(`- Introduction Present: ${assessment.essayAnalysis.hasIntroduction ? '✓ YES' : '✗ NO'}`);
+  addWrappedText(`- Conclusion Present: ${assessment.essayAnalysis.hasConclusion ? '✓ YES' : '✗ NO'}`);
+  addWrappedText(`- Paragraph Structure: ${
+    assessment.essayAnalysis.paragraphCount >= 4
+      ? '✓ GOOD'
+      : assessment.essayAnalysis.paragraphCount >= 3
+      ? '⚠ ADEQUATE'
+      : '✗ POOR'
+  }`);
+
+  addSectionTitle("COMPLETE ESSAY SUBMISSION:");
+  addWrappedText(assessment.academicWriting.essay);
+
+  addSectionTitle("TYPING SPEED TEST SECTION:");
+  addWrappedText(`Score: ${assessment.scores.typingScore.toFixed(1)}%`);
+  addWrappedText(`Speed: ${assessment.typingTest.wpm} WPM`);
+  addWrappedText(`Accuracy: ${assessment.typingTest.accuracy}%`);
+  addWrappedText(`Time Elapsed: ${assessment.typingTest.timeElapsed}`);
+  addWrappedText(`Progress: ${assessment.typingTest.progress}%`);
+  addWrappedText(`Status: ${assessment.scores.typingPass ? 'PASS' : 'FAIL'}`);
+
+  addSectionTitle("OVERALL ASSESSMENT SUMMARY:");
+  addWrappedText(`Reading: ${assessment.scores.readingScore.toFixed(1)}% (40%)`);
+  addWrappedText(`Writing: ${assessment.scores.writingScore.toFixed(1)}% (40%)`);
+  addWrappedText(`Typing: ${assessment.scores.typingScore.toFixed(1)}% (20%)`);
+  addWrappedText(`FINAL SCORE: ${assessment.scores.overallScore.toFixed(1)}%`);
+  addWrappedText(`QUALIFICATION: ${assessment.scores.overallStatus}`);
+  addWrappedText(`PASS THRESHOLD: 75%`);
+
+  addSectionTitle("HR RECOMMENDATION:");
+  const recommendation = assessment.scores.overallStatus === 'QUALIFIED'
+    ? '✓ PROCEED TO NEXT INTERVIEW STAGE'
+    : '✗ DOES NOT MEET MINIMUM REQUIREMENTS';
+  addWrappedText(recommendation);
+
+  addSectionTitle("REPORT GENERATED:");
+  addWrappedText(`${new Date().toLocaleString()}`);
+  addWrappedText("System: Siox Logistics HR Portal");
+
+  // === Footer with QR Code and Digital Signature ===
+  doc.setFontSize(10);
+  y = 270;
+
+  if (signatureBase64) {
+    doc.text("HR Digital Signature:", leftMargin, y - 2);
+    doc.addImage(signatureBase64, 'PNG', leftMargin + 40, y - 10, 30, 10);
+  }
+
+  if (qrCodeBase64) {
+    doc.text("Scan to Verify:", 160, y - 2);
+    doc.addImage(qrCodeBase64, 'PNG', 160, y - 20, 25, 25);
+  }
+
+  // === Save PDF ===
   const fileName = `${assessment.candidateName.replace(/\s+/g, "_")}_HR_Assessment.pdf`;
   doc.save(fileName);
 }
-
 
 function createUserDocument(assessment) {
  let doc = `SIOX LOGISTICS LLC ENGLISH ASSESSMENT - CANDIDATE COPY
