@@ -595,6 +595,8 @@
     </style>
 </head>
 <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <div class="timer" id="timer">Time: 30:00</div>
     
     <div class="container">
@@ -958,6 +960,7 @@
             <p>Review your responses and submit your assessment for HR evaluation.</p>
             <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
                 <button class="submit-btn" onclick="submitAssessment()">Submit to HR</button>
+                 <div id="afterSubmit"></div> 
                 <button class="submit-btn" onclick="downloadResults()" style="background: linear-gradient(135deg, #1a237e, #3949ab);">Download Results</button>
             </div>
         </div>
@@ -1398,39 +1401,30 @@
             return Math.min(100, score); // Cap at 100%
         }
 
+    async function submitAssessment() {
+    const candidateName = document.getElementById('candidateName').value.trim();
+    if (!candidateName) {
+        alert('Please enter your name before submitting the assessment.');
+        return;
+    }
 
+    clearInterval(timerInterval);
+    if (typingTimer) clearInterval(typingTimer);
 
+    const assessment = generateAssessmentData(candidateName);
 
+    // ✅ Generate and download the PDF
+    await createHRDocument(assessment);
 
-        function submitAssessment() {
-            const candidateName = document.getElementById('candidateName').value.trim();
-            if (!candidateName) {
-                alert('Please enter your name before submitting the assessment.');
-                return;
-            }
-            
-            clearInterval(timerInterval);
-            if (typingTimer) clearInterval(typingTimer);
-            
-            const assessment = generateAssessmentData(candidateName);
-            
-            // Create HR submission document
-            const hrDocument = createHRDocument(assessment);
-            
-            // Create email submission
-            const subject = `Harvard Assessment Results - ${candidateName}`;
-            const body = encodeURIComponent(hrDocument);
-            const mailtoLink = `mailto:kelvins@sioxlogistics.com?subject=${encodeURIComponent(subject)}&body=${body}`;
-            
-            // Open email client
-            window.open(mailtoLink, '_blank');
-            
-            alert('Assessment submitted! Your email client should open with the HR submission. Please send the email to complete the submission process.');
-            
-            // Log for HR system
-            console.log('=== SIOX LOGISTICS - HR SUBMISSION ===');
-            console.log(hrDocument);
-        }
+    // ✅ Feedback to user
+    alert("✅ Assessment submitted!\nA PDF copy has been downloaded.\nPlease send it to: hr@sioxlogistics.com");
+
+    // ✅ Optionally display confirmation or next steps
+    document.getElementById('afterSubmit').innerHTML = `
+        <p><strong>PDF downloaded successfully!</strong><br>
+        Email the PDF to <b>hr@sioxlogistics.com</b> to complete your submission.</p>
+    `;
+}
 
         function downloadResults() {
             const candidateName = document.getElementById('candidateName').value.trim();
@@ -1557,9 +1551,11 @@
             
             return assessment;
         }
+            async function createHRDocument(assessment) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-        function createHRDocument(assessment) {
-            let doc = `SIOX LOGISTICS LLC - HARVARD STANDARD ASSESSMENT
+  let content = `SIOX LOGISTICS LLC - NEW JOINEE STANDARD ASSESSMENT
 HR EVALUATION REPORT
 =====================================
 
@@ -1572,52 +1568,51 @@ Duration: ${assessment.timeSpent} minutes
 DETAILED ASSESSMENT SCORES:
 =====================================
 
-📚 READING COMPREHENSION SECTION:
+READING COMPREHENSION SECTION:
 Score: ${assessment.scores.readingScore.toFixed(1)}% (${assessment.scores.correctAnswers}/7 correct)
 
 Detailed Question Analysis:
 `;
 
-            // Question texts for HR reference
-            const questionTexts = [
-                "According to Atticus Finch's philosophy, true understanding of another person requires:",
-                "The town of Maycomb in the 1930s is described as:",
-                "Mrs. Dubose's struggle with morphine addiction teaches the children that courage is:",
-                "The mockingbird symbolism in the novel represents:",
-                "The children's journey from innocence to understanding primarily demonstrates:",
-                "Atticus Finch's decision to defend Tom Robinson despite social consequences shows:",
-                "The passage suggests that a just and compassionate society must be built on:"
-            ];
+  const questionTexts = [
+    "According to Atticus Finch's philosophy, true understanding of another person requires:",
+    "The town of Maycomb in the 1930s is described as:",
+    "Mrs. Dubose's struggle with morphine addiction teaches the children that courage is:",
+    "The mockingbird symbolism in the novel represents:",
+    "The children's journey from innocence to understanding primarily demonstrates:",
+    "Atticus Finch's decision to defend Tom Robinson despite social consequences shows:",
+    "The passage suggests that a just and compassionate society must be built on:"
+  ];
 
-            const answerChoices = [
-                ["A) Careful observation of their behavior in public settings", "B) Adopting their perspective and experiencing life from their viewpoint", "C) Reading about their background and personal history", "D) Engaging in lengthy conversations about their beliefs"],
-                ["A) A progressive community ahead of its time", "B) A representative example of American society with established social hierarchies", "C) An isolated community unaffected by broader social issues", "D) A wealthy enclave protected from social problems"],
-                ["A) The ability to overcome physical pain", "B) Persisting in doing what is right despite knowing the odds are against you", "C) Fighting against those who oppose you", "D) Hiding your weaknesses from others"],
-                ["A) The beauty of nature that should be preserved", "B) Innocence and goodness that deserve protection from harm", "C) The freedom that all individuals should possess", "D) The voice of truth in a world of lies"],
-                ["A) That children are naturally prejudiced", "B) How prejudice is learned rather than innate", "C) The importance of formal education", "D) That adults are always wrong"],
-                ["A) His desire for professional advancement", "B) Moral integrity and willingness to stand for what is right", "C) His ignorance of social expectations", "D) A calculated political move"],
-                ["A) Strict law enforcement", "B) Economic prosperity", "C) Empathetic understanding and genuine comprehension of others' experiences", "D) Traditional social hierarchies"]
-            ];
-            
-            for (let i = 1; i <= 7; i++) {
-                const q = assessment.multipleChoice[`question_${i}`];
-                const status = q.isCorrect ? '✓ CORRECT' : '✗ INCORRECT';
-                
-                doc += `
-Question ${i}: ${questionTexts[i-1]}
-Candidate Answer: ${q.userAnswer} - ${answerChoices[i-1].find(choice => choice.startsWith(q.userAnswer))}
-Correct Answer: ${q.correctAnswer} - ${answerChoices[i-1].find(choice => choice.startsWith(q.correctAnswer))}
+  const answerChoices = [
+    ["A) Careful observation of their behavior in public settings", "B) Adopting their perspective and experiencing life from their viewpoint", "C) Reading about their background and personal history", "D) Engaging in lengthy conversations about their beliefs"],
+    ["A) A progressive community ahead of its time", "B) A representative example of American society with established social hierarchies", "C) An isolated community unaffected by broader social issues", "D) A wealthy enclave protected from social problems"],
+    ["A) The ability to overcome physical pain", "B) Persisting in doing what is right despite knowing the odds are against you", "C) Fighting against those who oppose you", "D) Hiding your weaknesses from others"],
+    ["A) The beauty of nature that should be preserved", "B) Innocence and goodness that deserve protection from harm", "C) The freedom that all individuals should possess", "D) The voice of truth in a world of lies"],
+    ["A) That children are naturally prejudiced", "B) How prejudice is learned rather than innate", "C) The importance of formal education", "D) That adults are always wrong"],
+    ["A) His desire for professional advancement", "B) Moral integrity and willingness to stand for what is right", "C) His ignorance of social expectations", "D) A calculated political move"],
+    ["A) Strict law enforcement", "B) Economic prosperity", "C) Empathetic understanding and genuine comprehension of others' experiences", "D) Traditional social hierarchies"]
+  ];
+
+  for (let i = 1; i <= 7; i++) {
+    const q = assessment.multipleChoice[`question_${i}`];
+    const status = q.isCorrect ? '✓ CORRECT' : '✗ INCORRECT';
+
+    content += `
+Question ${i}: ${questionTexts[i - 1]}
+Candidate Answer: ${q.userAnswer} - ${answerChoices[i - 1].find(choice => choice.startsWith(q.userAnswer))}
+Correct Answer: ${q.correctAnswer} - ${answerChoices[i - 1].find(choice => choice.startsWith(q.correctAnswer))}
 Status: ${status}
 `;
-            }
-            
-            doc += `
+  }
+
+  content += `
 =====================================
-✍️ ACADEMIC WRITING SECTION:
+WRITING SECTION:
 Score: ${assessment.scores.writingScore.toFixed(1)}%
 Word Count: ${assessment.scores.essayWordCount} words (Requirement: 400-500 words)
 
-📊 DETAILED ESSAY ANALYSIS:
+ESSAY ANALYSIS:
 -----------------------------------
 Word Count: ${assessment.essayAnalysis.wordCount} words
 Sentence Count: ${assessment.essayAnalysis.sentenceCount} sentences
@@ -1639,7 +1634,6 @@ ${assessment.essayAnalysis.grammarIssues.length === 0 ? '✅ No major issues det
 COMPLETE ESSAY SUBMISSION:
 -----------------------------------
 ${assessment.academicWriting.essay}
------------------------------------
 
 SCORING BREAKDOWN:
 - Word Count (20pts): ${assessment.essayAnalysis.wordCount >= 400 && assessment.essayAnalysis.wordCount <= 500 ? '20/20' : assessment.essayAnalysis.wordCount >= 350 ? '15/20' : '10/20'}
@@ -1652,32 +1646,38 @@ SCORING BREAKDOWN:
 =====================================
 ⌨️ TYPING SPEED TEST SECTION:
 Score: ${assessment.scores.typingScore.toFixed(1)}%
-Speed: ${assessment.typingTest.wpm} WPM (Requirement: 40+ WPM)
-Accuracy: ${assessment.typingTest.accuracy}% (Requirement: 95%+ accuracy)
+Speed: ${assessment.typingTest.wpm} WPM
+Accuracy: ${assessment.typingTest.accuracy}%
 Time Elapsed: ${assessment.typingTest.timeElapsed}
 Progress: ${assessment.typingTest.progress}%
 Status: ${assessment.scores.typingPass ? 'PASS' : 'FAIL'}
 
 =====================================
 OVERALL ASSESSMENT SUMMARY:
-=====================================
-Reading Comprehension: ${assessment.scores.readingScore.toFixed(1)}% (Weight: 40%)
-Academic Writing: ${assessment.scores.writingScore.toFixed(1)}% (Weight: 40%)
-Typing Speed Test: ${assessment.scores.typingScore.toFixed(1)}% (Weight: 20%)
+Reading: ${assessment.scores.readingScore.toFixed(1)}% (40%)
+Writing: ${assessment.scores.writingScore.toFixed(1)}% (40%)
+Typing: ${assessment.scores.typingScore.toFixed(1)}% (20%)
 
-FINAL OVERALL SCORE: ${assessment.scores.overallScore.toFixed(1)}%
-QUALIFICATION STATUS: ${assessment.scores.overallStatus}
+FINAL SCORE: ${assessment.scores.overallScore.toFixed(1)}%
+QUALIFICATION: ${assessment.scores.overallStatus}
 PASS THRESHOLD: 75%
 
-HR RECOMMENDATION: ${assessment.scores.overallStatus === 'QUALIFIED' ? 'PROCEED TO NEXT INTERVIEW STAGE' : 'CANDIDATE DOES NOT MEET MINIMUM REQUIREMENTS'}
+HR RECOMMENDATION: ${assessment.scores.overallStatus === 'QUALIFIED' ? 'PROCEED TO NEXT INTERVIEW STAGE' : 'DOES NOT MEET MINIMUM REQUIREMENTS'}
 
-=====================================
 Generated: ${new Date().toLocaleString()}
-System: Siox Logistics HR Assessment Portal
+System: Siox Logistics HR Portal
 `;
-            
-            return doc;
-        }
+
+  // Write to PDF
+  const lines = doc.splitTextToSize(content, 180); // wrap to fit A4 width
+  doc.setFontSize(10);
+  doc.text(lines, 10, 10);
+
+  // Save the file
+  const fileName = `${assessment.candidateName.replace(/\s+/g, "_")}_HR_Assessment.pdf`;
+  doc.save(fileName);
+}
+
 
         function createUserDocument(assessment) {
             let doc = `SIOX LOGISTICS LLC ENGLISH ASSESSMENT - CANDIDATE COPY
