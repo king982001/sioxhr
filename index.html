@@ -1569,82 +1569,24 @@ DETAILED ASSESSMENT SCORES:
 =====================================
 
 READING COMPREHENSION SECTION:
+
 Score: ${assessment.scores.readingScore.toFixed(1)}% (${assessment.scores.correctAnswers}/7 correct)
 
-Detailed Question Analysis:
-`;
-
-  const questionTexts = [
-    "According to Atticus Finch's philosophy, true understanding of another person requires:",
-    "The town of Maycomb in the 1930s is described as:",
-    "Mrs. Dubose's struggle with morphine addiction teaches the children that courage is:",
-    "The mockingbird symbolism in the novel represents:",
-    "The children's journey from innocence to understanding primarily demonstrates:",
-    "Atticus Finch's decision to defend Tom Robinson despite social consequences shows:",
-    "The passage suggests that a just and compassionate society must be built on:"
-  ];
-
-  const answerChoices = [
-    ["A) Careful observation of their behavior in public settings", "B) Adopting their perspective and experiencing life from their viewpoint", "C) Reading about their background and personal history", "D) Engaging in lengthy conversations about their beliefs"],
-    ["A) A progressive community ahead of its time", "B) A representative example of American society with established social hierarchies", "C) An isolated community unaffected by broader social issues", "D) A wealthy enclave protected from social problems"],
-    ["A) The ability to overcome physical pain", "B) Persisting in doing what is right despite knowing the odds are against you", "C) Fighting against those who oppose you", "D) Hiding your weaknesses from others"],
-    ["A) The beauty of nature that should be preserved", "B) Innocence and goodness that deserve protection from harm", "C) The freedom that all individuals should possess", "D) The voice of truth in a world of lies"],
-    ["A) That children are naturally prejudiced", "B) How prejudice is learned rather than innate", "C) The importance of formal education", "D) That adults are always wrong"],
-    ["A) His desire for professional advancement", "B) Moral integrity and willingness to stand for what is right", "C) His ignorance of social expectations", "D) A calculated political move"],
-    ["A) Strict law enforcement", "B) Economic prosperity", "C) Empathetic understanding and genuine comprehension of others' experiences", "D) Traditional social hierarchies"]
-  ];
-
-  for (let i = 1; i <= 7; i++) {
-    const q = assessment.multipleChoice[`question_${i}`];
-    const status = q.isCorrect ? '✓ CORRECT' : '✗ INCORRECT';
-
-    content += `
-Question ${i}: ${questionTexts[i - 1]}
-Candidate Answer: ${q.userAnswer} - ${answerChoices[i - 1].find(choice => choice.startsWith(q.userAnswer))}
-Correct Answer: ${q.correctAnswer} - ${answerChoices[i - 1].find(choice => choice.startsWith(q.correctAnswer))}
-Status: ${status}
-`;
-  }
-
-  content += `
-=====================================
 WRITING SECTION:
 Score: ${assessment.scores.writingScore.toFixed(1)}%
 Word Count: ${assessment.scores.essayWordCount} words (Requirement: 400-500 words)
-
-ESSAY ANALYSIS:
------------------------------------
-Word Count: ${assessment.essayAnalysis.wordCount} words
-Sentence Count: ${assessment.essayAnalysis.sentenceCount} sentences
-Paragraph Count: ${assessment.essayAnalysis.paragraphCount} paragraphs
-Average Sentence Length: ${assessment.essayAnalysis.avgSentenceLength} words
-Average Word Length: ${assessment.essayAnalysis.avgWordLength} characters
-Vocabulary Level: ${assessment.essayAnalysis.vocabularyLevel}
-Academic Words Used: ${assessment.essayAnalysis.academicWordCount}
-Transition Words Used: ${assessment.essayAnalysis.transitionWordCount}
 
 STRUCTURE ANALYSIS:
 - Introduction Present: ${assessment.essayAnalysis.hasIntroduction ? '✓ YES' : '✗ NO'}
 - Conclusion Present: ${assessment.essayAnalysis.hasConclusion ? '✓ YES' : '✗ NO'}
 - Paragraph Structure: ${assessment.essayAnalysis.paragraphCount >= 4 ? '✓ GOOD' : assessment.essayAnalysis.paragraphCount >= 3 ? '⚠ ADEQUATE' : '✗ POOR'}
 
-GRAMMAR & STYLE ISSUES:
-${assessment.essayAnalysis.grammarIssues.length === 0 ? '✅ No major issues detected' : assessment.essayAnalysis.grammarIssues.map(issue => `⚠️ ${issue}`).join('\n')}
-
 COMPLETE ESSAY SUBMISSION:
 -----------------------------------
 ${assessment.academicWriting.essay}
 
-SCORING BREAKDOWN:
-- Word Count (20pts): ${assessment.essayAnalysis.wordCount >= 400 && assessment.essayAnalysis.wordCount <= 500 ? '20/20' : assessment.essayAnalysis.wordCount >= 350 ? '15/20' : '10/20'}
-- Structure (25pts): ${assessment.essayAnalysis.paragraphCount >= 4 ? '10' : assessment.essayAnalysis.paragraphCount >= 3 ? '7' : '3'} + ${assessment.essayAnalysis.hasIntroduction ? '8' : '0'} + ${assessment.essayAnalysis.hasConclusion ? '7' : '0'} = ${(assessment.essayAnalysis.paragraphCount >= 4 ? 10 : assessment.essayAnalysis.paragraphCount >= 3 ? 7 : 3) + (assessment.essayAnalysis.hasIntroduction ? 8 : 0) + (assessment.essayAnalysis.hasConclusion ? 7 : 0)}/25
-- Academic Vocabulary (20pts): ${assessment.essayAnalysis.academicWordCount >= 5 ? '20/20' : assessment.essayAnalysis.academicWordCount >= 3 ? '15/20' : assessment.essayAnalysis.academicWordCount >= 1 ? '10/20' : '5/20'}
-- Transitions (15pts): ${assessment.essayAnalysis.transitionWordCount >= 3 ? '15/15' : assessment.essayAnalysis.transitionWordCount >= 2 ? '10/15' : assessment.essayAnalysis.transitionWordCount >= 1 ? '7/15' : '3/15'}
-- Sentence Variety (10pts): ${assessment.essayAnalysis.avgSentenceLength >= 15 && assessment.essayAnalysis.avgSentenceLength <= 25 ? '10/10' : assessment.essayAnalysis.avgSentenceLength >= 12 && assessment.essayAnalysis.avgSentenceLength <= 30 ? '7/10' : '4/10'}
-- Grammar (10pts): ${assessment.essayAnalysis.grammarIssues.length === 0 ? '10/10' : assessment.essayAnalysis.grammarIssues.length <= 2 ? '7/10' : assessment.essayAnalysis.grammarIssues.length <= 4 ? '4/10' : '2/10'}
-
 =====================================
-⌨️ TYPING SPEED TEST SECTION:
+TYPING SPEED TEST SECTION:
 Score: ${assessment.scores.typingScore.toFixed(1)}%
 Speed: ${assessment.typingTest.wpm} WPM
 Accuracy: ${assessment.typingTest.accuracy}%
@@ -1669,9 +1611,18 @@ System: Siox Logistics HR Portal
 `;
 
   // Write to PDF
-  const lines = doc.splitTextToSize(content, 180); // wrap to fit A4 width
-  doc.setFontSize(10);
-  doc.text(lines, 10, 10);
+const lines = doc.splitTextToSize(content, 180); // wrap lines to fit A4
+doc.setFontSize(10);
+
+let y = 10;
+for (let i = 0; i < lines.length; i++) {
+  if (y > 280) { // if near bottom of page
+    doc.addPage();
+    y = 10;
+  }
+  doc.text(lines[i], 10, y);
+  y += 6; // line height
+}
 
   // Save the file
   const fileName = `${assessment.candidateName.replace(/\s+/g, "_")}_HR_Assessment.pdf`;
@@ -1679,8 +1630,8 @@ System: Siox Logistics HR Portal
 }
 
 
-        function createUserDocument(assessment) {
-            let doc = `SIOX LOGISTICS LLC ENGLISH ASSESSMENT - CANDIDATE COPY
+function createUserDocument(assessment) {
+ let doc = `SIOX LOGISTICS LLC ENGLISH ASSESSMENT - CANDIDATE COPY
 =====================================
 Candidate: ${assessment.candidateName}
 Date: ${new Date(assessment.timestamp).toLocaleDateString()}
