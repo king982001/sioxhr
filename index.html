@@ -1071,7 +1071,7 @@
             const words = textarea.value.trim().split(/\s+/).filter(word => word.length > 0);
             const wordCount = words.length;
             
-            let requirement = ' / 400-500 words required';
+            let requirement = ' / 300-400 words required';
             
             document.getElementById(countId).textContent = `Word count: ${wordCount}${requirement}`;
         }
@@ -1511,7 +1511,7 @@
             
             // Collect multiple choice answers with correct answers
             const correctAnswers = {
-                q1: 'B', q2: 'B', q3: 'B', q4: 'B', q5: 'B', q6: 'B', q7: 'C'
+                q1: 'B', q2: 'C', q3: 'A', q4: 'B', q5: 'C', q6: 'A', q7: 'A'
             };
             
             let correctCount = 0;
