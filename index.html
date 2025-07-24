@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siox Logistics LLC Standard Assessment</title>
+    <title>Siox Logistics LLC -HR Candidate Assessment</title>
     <style>
         * {
             margin: 0;
@@ -605,11 +605,11 @@
             <img src="image\siox black logo.png" alt="SIOX GLOBAL Logo" class="logo-img" />
         </div>
             <div class="harvard-badge">JOINING APPLICANTS</div>
-            <div class="subtitle">English Proficiency Assessment</div>
+            <div class="subtitle">Candidate Assessment</div>
             <div class="test-info">
                 <h3>Assessment Overview</h3>
                 <p><strong>Duration:</strong> 45 minutes total</p>
-                <p><strong>Sections:</strong> Reading Comprehension (7 questions) •  Writing (1 essay) • Typing Speed Test</p>
+                <p><strong>Sections:</strong> Reading Comprehension (7 questions) • Writing (1 essay) • Typing Speed Test</p>
                 <p><strong>Standard:</strong> English Level</p>
                 <p><strong>Evaluation:</strong> Comprehensive scoring with detailed HR feedback</p>
                 <p><strong>Requirement:</strong> 75%+ overall score for employment consideration</p>
@@ -837,23 +837,23 @@
 </div>
 
         </div>
-
-        <!-- Academic Writing Section -->
-<div class="test-section" id="writing">
-    <div class="section-header">
-        <div class="section-title">✍️ Writing</div>
-        <div class="section-instructions">1 Essay Question</div>
-    </div>
-
-    <!--  Writing Section -->
-    <div class="writing-section">
-        <div class="writing-task">
-            <div class="task-title">Essay Question</div>
-            <div class="task-instructions">
-                <h4>Topic: "My Favorite Festival"</h4>
+</div>
+        <!-- Writing Section -->
+        <div class="test-section" id="writing">
+            <div class="section-header">
+                <div class="section-title">✍️ Writing</div>
+                <div class="section-instructions">1 Essay Question</div>
+            </div>
+            
+            <div class="writing-section">
+                <div class="writing-task">
+                    <div class="task-title">Essay Question</div>
+                    <div class="task-instructions">
+                        <h4>Topic: "My Favorite Festival"</h4>
                 <p><strong>Instructions:</strong> Write a short essay of 300–400 words about your favorite festival. You may describe:</p>
                 
-                <ul style="margin: 20px 0 20px 25px; line-height: 1.6;">
+                        
+                    <ul style="margin: 20px 0 20px 25px; line-height: 1.6;">
                     <li><strong>Name of the festival:</strong> What is the name of the festival?</li>
                     <li><strong>Celebration:</strong> How do you and your family celebrate it?</li>
                     <li><strong>People:</strong> Who do you celebrate it with?</li>
@@ -863,15 +863,13 @@
                 <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
                     <strong>Evaluation Criteria:</strong> Clarity of ideas, sentence structure, vocabulary, and grammar.
                 </div>
-            </div>
-            
-            <div class="writing-area">
-                <textarea id="essay1" oninput="limitEssayWords('essay1', 'essayCount1', 400); analyzeEssay();" placeholder="Write your essay here..."></textarea>
-                <div id="essayCount1">Word count: 0 / 300–400 words</div>
-            </div>
-        </div>
-    </div>
-</div>
+                    </div>
+                    
+                    <div class="writing-area">
+                       <textarea id="essay1"  oninput="limitEssayWords('essay1', 'essayCount1', 250); analyzeEssay();" placeholder="Write your essay here...">
+</textarea>
+                 
+<div id="essayCount1">Word count: 0 / 250 words</div>
                         
                         <div class="essay-analysis" id="essayAnalysis" style="display: none;">
                             <h4 style="color: #1976d2; margin-bottom: 15px;">📊 Real-time Essay Analysis (For Candidate)</h4>
@@ -917,7 +915,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Typing Speed Test Section -->
         <div class="test-section" id="typing">
             <div class="section-header">
@@ -969,7 +966,8 @@
             </div>
         </div>
     </div>
-
+</div>
+</div>
     <script>
         let currentSection = 'reading';
         let currentSectionIndex = 0;
@@ -1071,7 +1069,7 @@
             const words = textarea.value.trim().split(/\s+/).filter(word => word.length > 0);
             const wordCount = words.length;
             
-            let requirement = ' / 300-400 words required';
+            let requirement = ' / 400-500 words required';
             
             document.getElementById(countId).textContent = `Word count: ${wordCount}${requirement}`;
         }
@@ -1333,7 +1331,7 @@
             
             // Grammar checks
             const grammarIssues = [];
-            if (essay.includes(' i ') || essay.startsWith('i ')) grammarIssues.push('Capitalization issues');
+            if (essay.match(/\bi\b/)) grammarIssues.push('Capitalization issue with "I"');
             if (essay.match(/\b(there|their|they're)\b/gi)) grammarIssues.push('Homophone usage check needed');
             if (essay.match(/\b(your|you're)\b/gi)) grammarIssues.push('Contraction usage check needed');
             
@@ -1341,13 +1339,15 @@
             if (longSentences > 0) grammarIssues.push(`${longSentences} potentially long sentences`);
             
             // Structure analysis
-            const hasIntroduction = paragraphs.length > 0 && paragraphs[0].toLowerCase().includes('technology') || paragraphs[0].toLowerCase().includes('communication');
-            const hasConclusion = paragraphs.length > 0 && (paragraphs[paragraphs.length - 1].toLowerCase().includes('conclusion') || 
-                                  paragraphs[paragraphs.length - 1].toLowerCase().includes('summary') ||
-                                  paragraphs[paragraphs.length - 1].toLowerCase().includes('therefore') ||
-                                  paragraphs[paragraphs.length - 1].toLowerCase().includes('thus'));
-            
-            return {
+            // Checks that the first paragraph has more than 20 words (likely a real intro)
+const hasIntroduction = paragraphs.length > 0 && paragraphs[0].split(' ').length > 20;
+
+// Checks if the last paragraph includes typical conclusion phrases
+const conclusionIndicators = ['in conclusion', 'to sum up', 'therefore', 'thus', 'overall', 'finally'];
+const lastParagraph = paragraphs[paragraphs.length - 1].toLowerCase();
+const hasConclusion = conclusionIndicators.some(phrase => lastParagraph.includes(phrase));
+           
+return {
                 wordCount: words.length,
                 sentenceCount: sentences.length,
                 paragraphCount: paragraphs.length,
@@ -1366,9 +1366,9 @@
             let score = 0;
             
             // Word count (20 points max)
-            if (analysis.wordCount >= 400 && analysis.wordCount <= 500) score += 20;
-            else if (analysis.wordCount >= 350 && analysis.wordCount < 600) score += 15;
-            else if (analysis.wordCount >= 300) score += 10;
+            if (analysis.wordCount >= 200 && analysis.wordCount <= 250) score += 20;
+            else if (analysis.wordCount >= 150 && analysis.wordCount < 200) score += 15;
+            else if (analysis.wordCount >= 100) score += 10;
             else score += 5;
             
             // Structure (25 points max)
@@ -1706,7 +1706,7 @@ async function createHRDocument(assessment, logoBase64, qrCodeBase64, signatureB
   addTitle("Writing Assessment");
   addScoreBar("Score", assessment.scores.writingScore);
   drawTable([
-    ["Word Count", `${assessment.scores.essayWordCount} words (Required: 400–500)`],
+    ["Word Count", `${assessment.scores.essayWordCount} words (Required: 250)`],
     ["Introduction Present", assessment.essayAnalysis.hasIntroduction ? "Yes" : "No"],
     ["Conclusion Present", assessment.essayAnalysis.hasConclusion ? "Yes" : "No"],
     ["Paragraph Structure", assessment.essayAnalysis.paragraphCount >= 4
@@ -1830,10 +1830,10 @@ function limitEssayWords(textareaId, counterId, maxWords) {
   }
 
   // Update display
-  counter.textContent = `Word count: ${words.length} / 400–500 words`;
+  counter.textContent = `Word count: ${words.length} / 250 words`;
 
   // Optional: color warning
-  counter.style.color = words.length >= 480 ? "red" : "";
+  counter.style.color = words.length >= 240 ? "red" : "";
 }
 </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9634bc65b0423e22',t:'MTc1MzIwNjE2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
