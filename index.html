@@ -608,11 +608,11 @@
             <div class="subtitle">Candidate Assessment</div>
             <div class="test-info">
                 <h3>Assessment Overview</h3>
-                <p><strong>Duration:</strong> 45 minutes total</p>
+                <p><strong>Duration:</strong> 40 minutes total</p>
                 <p><strong>Sections:</strong> Reading Comprehension (7 questions) • Writing (1 essay) • Typing Speed Test</p>
                 <p><strong>Standard:</strong> English Level</p>
                 <p><strong>Evaluation:</strong> Comprehensive scoring with detailed HR feedback</p>
-                <p><strong>Requirement:</strong> 75%+ overall score for employment consideration</p>
+                <p><strong>Requirement:</strong> 70%+ overall score for employment consideration</p>
                 
                 <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #1a237e;">
                     <label for="candidateName" style="display: block; font-weight: bold; margin-bottom: 8px; color: #1a237e;">Candidate Name:</label>
@@ -850,7 +850,7 @@
                     <div class="task-title">Essay Question</div>
                     <div class="task-instructions">
                         <h4>Topic: "My Favorite Festival"</h4>
-                <p><strong>Instructions:</strong> Write a short essay of 300–400 words about your favorite festival. You may describe:</p>
+                <p><strong>Instructions:</strong> Write a short essay of 250 words about your favorite festival. You may describe:</p>
                 
                         
                     <ul style="margin: 20px 0 20px 25px; line-height: 1.6;">
@@ -972,7 +972,7 @@
         let currentSection = 'reading';
         let currentSectionIndex = 0;
         let sections = ['reading', 'writing', 'typing'];
-        let sectionNames = ['Reading Comprehension', 'Academic Writing', 'Typing Speed Test'];
+        let sectionNames = ['Reading Comprehension', 'Writing', 'Typing Speed Test'];
         let timeLeft = 45 * 60; // 45 minutes in seconds
         let timerInterval;
         let typingStartTime = null;
@@ -1550,7 +1550,7 @@ return {
                 totalQuestions: 7,
                 essayWordCount: assessment.academicWriting.essay.trim().split(/\s+/).filter(w => w.length > 0).length,
                 typingPass: assessment.typingTest.wpm >= 40 && assessment.typingTest.accuracy >= 95,
-                overallStatus: overallScore >= 75 ? 'QUALIFIED' : 'NOT QUALIFIED'
+                overallStatus: overallScore >= 70 ? 'QUALIFIED' : 'NOT QUALIFIED'
             };
             
             return assessment;
@@ -1743,7 +1743,7 @@ async function createHRDocument(assessment, logoBase64, qrCodeBase64, signatureB
     ["Typing (20%)", `${assessment.scores.typingScore.toFixed(1)}%`],
     ["Final Score", `${assessment.scores.overallScore.toFixed(1)}%`],
     ["Qualification", assessment.scores.overallStatus],
-    ["Pass Threshold", "75%"]
+    ["Pass Threshold", "70%"]
   ]);
 
   addTitle("HR Recommendation");
